@@ -12,7 +12,7 @@ const Mailbox: React.FC = () => {
 
   return (
     <Container className="text-center mt-5">
-      <h1>📬 Welcome to your mail box</h1>
+      <h1>Welcome to your mail box</h1>
       <p>You are successfully logged in.</p>
       <Button
         variant="danger"

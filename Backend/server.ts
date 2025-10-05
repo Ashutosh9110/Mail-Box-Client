@@ -1,7 +1,9 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import userRoutes from "./routes/userRoutes";
+import userRoutes from "./routes/userRoutes.ts";
+import mailRoutes from "./routes/mailRoutes.ts";
+
 
 const app = express();
 app.use(cors());
@@ -13,6 +15,7 @@ mongoose
   .catch((err) => console.error("MongoDB connection error:", err));
 
 app.use(userRoutes);
+app.use("/api/mails", mailRoutes);
 
 const PORT = 5000;
 app.listen(PORT, () => {
