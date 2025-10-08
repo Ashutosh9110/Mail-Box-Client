@@ -41,6 +41,20 @@ const Inbox = () => {
     }
   };
 
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this mail?")) return;
+  
+    try {
+      await axios.delete(`http://localhost:5000/api/v1/mails/delete/${id}`);
+      setMails((prev) => prev.filter((mail) => mail._id !== id));
+    } catch (err) {
+      console.error("Error deleting mail:", err);
+      alert("Failed to delete mail");
+    }
+  };
+  
+
   const unreadCount = mails.filter((m) => !m.read).length;
 
   return (
@@ -51,9 +65,13 @@ const Inbox = () => {
         </h2>
 
         <div>
-          <Button variant="primary" onClick={fetchInbox} className="me-3">
-            {loading ? <Spinner animation="border" size="sm" /> : "Check Latest Messages"}
-          </Button>
+        <Button
+          variant="primary"
+          onClick={() => navigate("/compose")}
+          className="me-3"
+        >
+          Compose a new email
+        </Button>
 
           <Button variant="success" onClick={() => navigate("/mailbox")}>
             Back to Homepage
@@ -62,47 +80,63 @@ const Inbox = () => {
       </div>
 
       <Table hover responsive>
-        <thead>
-          <tr>
-            <th>Status</th>
-            <th>From</th>
-            <th>Subject</th>
-            <th>Received On</th>
-          </tr>
-        </thead>
-        <tbody>
-          {mails.length === 0 ? (
-            <tr>
-              <td colSpan={4} className="text-center">No messages found.</td>
-            </tr>
-          ) : (
-            mails.map((mail) => (
-              <tr
-                key={mail._id}
-                onClick={() => handleMailClick(mail)}
-                style={{ cursor: "pointer", backgroundColor: mail.read ? "#fff" : "#eaf3ff" }}
-              >
-                <td style={{ textAlign: "center" }}>
-                  {!mail.read && (
-                    <span
-                      style={{
-                        display: "inline-block",
-                        width: 10,
-                        height: 10,
-                        borderRadius: "50%",
-                        backgroundColor: "#007bff",
-                      }}
-                    ></span>
-                  )}
-                </td>
-                <td>{mail.sender}</td>
-                <td>{mail.subject}</td>
-                <td>{new Date(mail.timestamp).toLocaleString()}</td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </Table>
+  <thead>
+    <tr>
+      <th>Status</th>
+      <th>From</th>
+      <th>Subject</th>
+      <th>Received On</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {mails.length === 0 ? (
+      <tr>
+        <td colSpan={5} className="text-center">No messages found.</td>
+      </tr>
+    ) : (
+      mails.map((mail) => (
+        <tr
+          key={mail._id}
+          onClick={() => handleMailClick(mail)}
+          style={{
+            cursor: "pointer",
+            backgroundColor: mail.read ? "#fff" : "#eaf3ff",
+          }}
+        >
+          <td style={{ textAlign: "center" }}>
+            {!mail.read && (
+              <span
+                style={{
+                  display: "inline-block",
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  backgroundColor: "#007bff",
+                }}
+              ></span>
+            )}
+          </td>
+          <td>{mail.sender}</td>
+          <td>{mail.subject}</td>
+          <td>{new Date(mail.timestamp).toLocaleString()}</td>
+          <td>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation(); // prevent opening mail modal
+                handleDelete(mail._id);
+              }}
+            >
+              🗑 Delete
+            </Button>
+          </td>
+        </tr>
+      ))
+    )}
+  </tbody>
+</Table>
 
       {/* Modal to show full message */}
       <Modal show={!!selectedMail} onHide={() => setSelectedMail(null)} centered>

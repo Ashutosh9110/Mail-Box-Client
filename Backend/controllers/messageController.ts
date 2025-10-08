@@ -55,3 +55,23 @@ export const markAsRead = async (req: Request, res: Response): Promise<void> => 
     res.status(500).json({ message: "Error updating mail status" });
   }
 };
+
+
+
+
+export const deleteEmail = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const mail = await Mail.findByIdAndDelete(id);
+
+    if (!mail) {
+      res.status(404).json({ message: "Mail not found" });
+      return;
+    }
+
+    res.status(200).json({ message: "Mail deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting mail:", err);
+    res.status(500).json({ message: "Error deleting mail" });
+  }
+};
