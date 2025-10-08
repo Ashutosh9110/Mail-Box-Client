@@ -11,18 +11,36 @@ const Inbox = () => {
   const [showSent, setShowSent] = useState(false); // 👈 NEW
   const email = localStorage.getItem("email");
 
-  const fetchInbox = async () => {
-    if (!email) return;
-    setLoading(true);
-    try {
-      const res = await axios.get(`http://localhost:5000/api/v1/mails/inbox/${email}`);
-      setMails(res.data);
-    } catch (err) {
-      console.error("Error fetching inbox:", err);
-    } finally {
-      setLoading(false);
+const fetchInbox = async () => {
+  if (!email) return;
+  try {
+    const res = await axios.get(`http://localhost:5000/api/v1/mails/inbox/${email}`);
+    const newMails = res.data;
+
+    // 🧠 Only update state if mails have changed (to avoid unnecessary re-renders)
+    setMails((prevMails) => {
+      const prevIds = prevMails.map((m) => m._id).join(",");
+      const newIds = newMails.map((m) => m._id).join(",");
+      return prevIds !== newIds ? newMails : prevMails;
+    });
+  } catch (err) {
+    console.error("Error fetching inbox:", err);
+  }
+};
+
+useEffect(() => {
+  fetchInbox(); // fetch once immediately on mount
+
+  const intervalId = setInterval(() => {
+    if (!showSent) {
+      fetchInbox();
     }
-  };
+  }, 2000);
+
+  // Clean up interval on unmount
+  return () => clearInterval(intervalId);
+}, [showSent, email]);
+
 
   const fetchSent = async () => {
     if (!email) return;

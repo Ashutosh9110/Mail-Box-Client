@@ -1,5 +1,12 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+export interface IAttachment {
+  filename: string;
+  url: string;
+  mimetype: string;
+  size: number;
+}
+
 export interface IMail extends Document {
   sender: string;
   receiver: string;
@@ -7,6 +14,7 @@ export interface IMail extends Document {
   body: string;
   timestamp: Date;
   read: boolean;
+  attachments?: IAttachment[]; // ✅ new field
 }
 
 const mailSchema = new Schema<IMail>({
@@ -16,6 +24,14 @@ const mailSchema = new Schema<IMail>({
   body: { type: String, required: true },
   timestamp: { type: Date, default: Date.now },
   read: { type: Boolean, default: false },
+  attachments: [
+    {
+      filename: { type: String },
+      url: { type: String },
+      mimetype: { type: String },
+      size: { type: Number },
+    },
+  ],
 });
 
 export default mongoose.model<IMail>("Mail", mailSchema);
