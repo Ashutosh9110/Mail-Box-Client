@@ -14,8 +14,8 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-app.use(userRoutes);
-app.use("/api/mails", mailRoutes);
+app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/mails", mailRoutes);
 
 const PORT = 5000;
 app.listen(PORT, () => {

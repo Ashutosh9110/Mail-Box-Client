@@ -32,17 +32,18 @@ const Login: React.FC = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/api/login", form);
+      const response = await axios.post("http://localhost:5000/api/v1/users/login", form);
 
       if (response.status === 200) {
         const token = response.data.token;
         localStorage.setItem("token", token);
-        setSuccess("✅ Login successful!");
+        setSuccess("Login successful!");
 
         setTimeout(() => {
           navigate("/mailbox");
         }, 1500);
       }
+
     } catch (err: any) {
       setError(err.response?.data?.message || "Invalid credentials. Try again.");
     }
@@ -92,6 +93,13 @@ const Login: React.FC = () => {
                 Login
               </Button>
             </Form>
+            <Button
+              variant="link"
+              className="w-100 mt-3"
+              onClick={() => navigate("/")}
+            >
+               New user? Want to Sign Up?
+            </Button>
           </Card>
         </Col>
       </Row>

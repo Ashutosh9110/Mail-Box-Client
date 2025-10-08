@@ -33,7 +33,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       "SECRET_KEY",
       { expiresIn: "1h" }
     );
-
+    localStorage.setItem("email", user.email);
     res.status(200).json({ message: "Login successful", token });
   } catch (err) {
     console.error(err);

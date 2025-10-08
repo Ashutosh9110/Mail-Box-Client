@@ -44,7 +44,7 @@ const Signup: React.FC = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/api/signup", {
+      const response = await axios.post("http://localhost:5000/api/v1/users/signup", {
         email,
         password,
       });
@@ -118,6 +118,14 @@ const Signup: React.FC = () => {
                 Sign Up
               </Button>
             </Form>
+            <Button
+              variant="link"
+              className="w-100 mt-3"
+              onClick={() => navigate("/login")}
+            >
+              Already a user? Login
+            </Button>
+
           </Card>
         </Col>
       </Row>
