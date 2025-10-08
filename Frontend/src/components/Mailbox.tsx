@@ -20,6 +20,11 @@ const Mailbox: React.FC = () => {
           Compose Mail
         </Button>
 
+        <Button variant="primary" onClick={() => navigate("/inbox")}>
+          Check latest messages
+        </Button>
+
+
         <Button
           variant="danger"
           onClick={() => {

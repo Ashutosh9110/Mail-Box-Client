@@ -6,6 +6,7 @@ export interface IMail extends Document {
   subject: string;
   body: string;
   timestamp: Date;
+  read: boolean;
 }
 
 const mailSchema = new Schema<IMail>({
@@ -14,6 +15,7 @@ const mailSchema = new Schema<IMail>({
   subject: { type: String, required: true },
   body: { type: String, required: true },
   timestamp: { type: Date, default: Date.now },
+  read: { type: Boolean, default: false },
 });
 
 export default mongoose.model<IMail>("Mail", mailSchema);
