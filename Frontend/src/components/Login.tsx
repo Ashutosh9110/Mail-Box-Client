@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Form, Button, Container, Row, Col, Card, Alert } from "react-bootstrap";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuthApi } from "../hooks/useAuthApi";
+
 
 interface LoginForm {
   email: string;
@@ -10,9 +11,7 @@ interface LoginForm {
 
 const Login: React.FC = () => {
   const [form, setForm] = useState<LoginForm>({ email: "", password: "" });
-  const [error, setError] = useState<string>("");
-  const [success, setSuccess] = useState<string>("");
-
+  const { login, loading, error, success, setError, setSuccess } = useAuthApi();
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,31 +22,18 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
-
     if (!form.email || !form.password) {
       setError("All fields are required.");
       return;
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/api/v1/users/login", form);
-
-      if (response.status === 200) {
-        const token = response.data.token;
-        localStorage.setItem("token", token);
-        setSuccess("Login successful!");
-
-        setTimeout(() => {
-          navigate("/mailbox");
-        }, 1500);
-      }
-
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Invalid credentials. Try again.");
+      await login(form);
+      setTimeout(() => navigate("/mailbox"), 1500);
+    } catch {
+      // handled in hook
     }
-  };
+  };    
 
   return (
     <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>

@@ -5,6 +5,7 @@ import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import draftToHtml from "draftjs-to-html";
+import { useSendMail } from "../hooks/useSendMail";
 
 export default function ComposeMail() {
   const [to, setTo] = useState("");
@@ -12,6 +13,8 @@ export default function ComposeMail() {
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
   const [attachments, setAttachments] = useState([]);
   const navigate = useNavigate();
+  const { sendMail } = useSendMail();
+
 
   const handleFileChange = (e) => {
     setAttachments([...e.target.files]);
@@ -22,23 +25,20 @@ export default function ComposeMail() {
   const bodyHtml = draftToHtml(rawContent);
 
   const formData = new FormData();
-  formData.append("sender", localStorage.getItem("userEmail"));
-  formData.append("receiver", to);
-  formData.append("subject", subject);
-  formData.append("body", bodyHtml);
+  
+    formData.append("sender", localStorage.getItem("userEmail"));
+    formData.append("receiver", to);
+    formData.append("subject", subject);
+    formData.append("body", bodyHtml);
+    attachments.forEach((file) => formData.append("attachments", file));
 
-  attachments.forEach((file) => formData.append("attachments", file));
-
-  try {
-    await axios.post("http://localhost:5000/api/v1/mails/send", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-
-    alert("Mail sent successfully!");
-    navigate("/mailbox");
-  } catch (err) {
-    console.error(err);
-    alert("Failed to send mail");
+    try {
+      await sendMail(formData);
+      alert("Mail sent successfully!");
+      navigate("/mailbox");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to send mail");
     }
   };
 

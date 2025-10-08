@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Form, Button, Container, Row, Col, Alert, Card } from "react-bootstrap";
-import axios from "axios";
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
+import { useAuthApi } from "../hooks/useAuthApi";
 
 interface SignupForm {
   email: string;
@@ -15,25 +15,19 @@ const Signup: React.FC = () => {
     password: "",
     confirmPassword: "",
   });
-  const [error, setError] = useState<string>("");
-  const [success, setSuccess] = useState<string>("");
-  const navigate = useNavigate()
-
+  const { signup, loading, error, success, setError, setSuccess } = useAuthApi();
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    setError("");
-    setSuccess("");
+    setError(null);
+    setSuccess(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
 
     const { email, password, confirmPassword } = form;
-
-    // Basic validation
     if (!email || !password || !confirmPassword) {
       setError("All fields are required.");
       return;
@@ -44,21 +38,11 @@ const Signup: React.FC = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/api/v1/users/signup", {
-        email,
-        password,
-      });
-
-      if (response.status === 201 || response.status === 200) {
-        setSuccess("User has successfully signed up!");
-        setForm({ email: "", password: "", confirmPassword: "" });
-        setTimeout(() => {
-           navigate("/login")
-        }, 2000)
-
-      }
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Something went wrong. Try again.");
+      await signup({ email, password });
+      setForm({ email: "", password: "", confirmPassword: "" });
+      setTimeout(() => navigate("/login"), 2000);
+    } catch {
+      // errors are already handled by the hook
     }
   };
 
@@ -68,7 +52,6 @@ const Signup: React.FC = () => {
         <Col>
           <Card className="p-4 shadow">
             <h2 className="text-center mb-4">Sign Up</h2>
-
             {error && <Alert variant="danger">{error}</Alert>}
             {success && <Alert variant="success">{success}</Alert>}
 
@@ -109,23 +92,14 @@ const Signup: React.FC = () => {
                 />
               </Form.Group>
 
-              <Button
-                variant="primary"
-                type="submit"
-                className="w-100"
-                disabled={!form.email || !form.password || !form.confirmPassword}
-              >
-                Sign Up
+              <Button variant="primary" type="submit" className="w-100" disabled={loading}>
+                {loading ? "Signing up..." : "Sign Up"}
               </Button>
             </Form>
-            <Button
-              variant="link"
-              className="w-100 mt-3"
-              onClick={() => navigate("/login")}
-            >
+
+            <Button variant="link" className="w-100 mt-3" onClick={() => navigate("/login")}>
               Already a user? Login
             </Button>
-
           </Card>
         </Col>
       </Row>
